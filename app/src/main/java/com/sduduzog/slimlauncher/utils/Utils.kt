@@ -92,3 +92,5 @@ fun createTitleAndSubtitleText(context: Context, title: CharSequence, subtitle: 
     )
     return spanBuilder
 }
+
+fun String.firstUppercase() = this.first().uppercase()
