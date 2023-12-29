@@ -15,9 +15,11 @@ import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.MediaStore
 import android.provider.Settings
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -31,6 +33,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.jkuester.unlauncher.datastore.ClockType
 import com.jkuester.unlauncher.datastore.SearchBarPosition
 import com.jkuester.unlauncher.datastore.UnlauncherApp
 import com.sduduzog.slimlauncher.R
@@ -44,11 +47,20 @@ import com.sduduzog.slimlauncher.ui.dialogs.RenameAppDisplayNameDialog
 import com.sduduzog.slimlauncher.utils.BaseFragment
 import com.sduduzog.slimlauncher.utils.OnLaunchAppListener
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.home_fragment_default.*
-import kotlinx.android.synthetic.main.home_fragment_content.*
+import kotlinx.android.synthetic.main.home_fragment_content.app_drawer_edit_text
+import kotlinx.android.synthetic.main.home_fragment_content.app_drawer_fragment_list
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_analog_time
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_bin_time
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_call
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_camera
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_date
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_list
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_list_exp
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_options
+import kotlinx.android.synthetic.main.home_fragment_content.home_fragment_time
+import kotlinx.android.synthetic.main.home_fragment_default.home_fragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -124,6 +136,14 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
 
         val showSearchBar = unlauncherDataSource.corePreferencesRepo.showSearchField
         app_drawer_edit_text.visibility = if (showSearchBar) View.VISIBLE else View.GONE
+
+        unlauncherDataSource.corePreferencesRepo.liveData().observe(viewLifecycleOwner){ corePreferences ->
+            val clockType = corePreferences.clockType
+            home_fragment_time.visibility = if(clockType == ClockType.digital) View.VISIBLE else View.GONE
+            home_fragment_analog_time.visibility = if(clockType == ClockType.analog) View.VISIBLE else View.GONE
+            home_fragment_bin_time.visibility = if(clockType == ClockType.binary) View.VISIBLE else View.GONE
+            home_fragment_date.visibility = if(clockType != ClockType.none) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onStart() {
@@ -166,7 +186,7 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
 
     private fun setEventListeners() {
 
-        home_fragment_time.setOnClickListener {
+        val launchShowAlarms = OnClickListener {
             try {
                 val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -176,6 +196,9 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
                 // Do nothing, we've failed :(
             }
         }
+        home_fragment_time.setOnClickListener(launchShowAlarms)
+        home_fragment_analog_time.setOnClickListener(launchShowAlarms)
+        home_fragment_bin_time.setOnClickListener(launchShowAlarms)
 
         home_fragment_date.setOnClickListener {
             try {
@@ -290,21 +313,29 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
     }
 
     fun updateClock() {
-        val active = context?.getSharedPreferences(getString(R.string.prefs_settings), Context.MODE_PRIVATE)
-                ?.getInt(getString(R.string.prefs_settings_key_time_format), 0)
-        val date = Date()
-
-        val currentLocale = Locale.getDefault()
-        val fWatchTime = when(active) {
-            1 -> SimpleDateFormat("H:mm", currentLocale)
-            2 -> SimpleDateFormat("h:mm aa", currentLocale)
-            else -> DateFormat.getTimeInstance(DateFormat.SHORT)
+        updateDate()
+        when (unlauncherDataSource.corePreferencesRepo.get().clockType) {
+            ClockType.digital -> updateClockDigital()
+            ClockType.analog -> home_fragment_analog_time.updateClock()
+            ClockType.binary -> home_fragment_bin_time.updateClock()
+            else -> {}
         }
-        home_fragment_time.text = fWatchTime.format(date)
+    }
 
+    private fun updateClockDigital () {
+        val timeFormat = context?.getSharedPreferences(getString(R.string.prefs_settings), Context.MODE_PRIVATE)
+            ?.getInt(getString(R.string.prefs_settings_key_time_format), 0)
+        val fWatchTime = when (timeFormat) {
+            1 -> SimpleDateFormat("H:mm", Locale.getDefault())
+            2 -> SimpleDateFormat("h:mm aa", Locale.getDefault())
+            else -> DateFormat.getTimeFormat(context)
+        }
+        home_fragment_time.text = fWatchTime.format(Date())
+    }
 
-        val fWatchDate = SimpleDateFormat("EEE, MMM dd", currentLocale)
-        home_fragment_date.text = fWatchDate.format(date)
+    private fun updateDate() {
+        val fWatchDate = SimpleDateFormat(getString(R.string.main_date_format), Locale.getDefault())
+        home_fragment_date.text = fWatchDate.format(Date())
     }
 
     override fun onLaunch(app: HomeApp, view: View) {
