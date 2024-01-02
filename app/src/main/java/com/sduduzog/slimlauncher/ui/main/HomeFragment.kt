@@ -67,6 +67,8 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
+private const val APP_TILE_SIZE: Int = 3
+
 @AndroidEntryPoint
 class HomeFragment : BaseFragment(), OnLaunchAppListener {
     @Inject
@@ -96,13 +98,8 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val settingsKey = getString(R.string.prefs_settings)
-        val alignmentKey: String = getString(R.string.prefs_settings_alignment)
-        val preferences = requireContext().getSharedPreferences(settingsKey, Context.MODE_PRIVATE)
-        val alignment = preferences.getInt(alignmentKey, 3)
-
-        val adapter1 = HomeAdapter(this, alignment)
-        val adapter2 = HomeAdapter(this, alignment)
+        val adapter1 = HomeAdapter(this, unlauncherDataSource)
+        val adapter2 = HomeAdapter(this, unlauncherDataSource)
         home_fragment_list.adapter = adapter1
         home_fragment_list_exp.adapter = adapter2
 
@@ -111,10 +108,10 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
         viewModel.apps.observe(viewLifecycleOwner) { list ->
             list?.let { apps ->
                 adapter1.setItems(apps.filter {
-                    it.sortingIndex < 3
+                    it.sortingIndex < APP_TILE_SIZE
                 })
                 adapter2.setItems(apps.filter {
-                    it.sortingIndex >= 3
+                    it.sortingIndex >= APP_TILE_SIZE
                 })
 
                 // Set the home apps in the Unlauncher data
@@ -127,8 +124,7 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
         appDrawerAdapter = AppDrawerAdapter(
             AppDrawerListener(),
             viewLifecycleOwner,
-            unlauncherAppsRepo,
-            unlauncherDataSource.corePreferencesRepo
+            unlauncherDataSource
         )
 
         setEventListeners()
