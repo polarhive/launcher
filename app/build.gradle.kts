@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion(33)
+    compileSdk = 34
     defaultConfig {
         applicationId = "com.jkuester.unlauncher"
         minSdkVersion(21)
-        targetSdkVersion(33)
+        targetSdk = 34
         versionName = "2.1.0-beta.1"
         versionCode = 19
         vectorDrawables { useSupportLibrary = true }
@@ -57,6 +57,13 @@ android {
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
+    }
+    lint {
+        warningsAsErrors = true
+        disable += "Typos" // Too many false positives
+        disable += "VectorPath" // Not planning to change "large" graphics for now
+        disable += "GradleDependency" // Do not fail linting due to new dependencies
+        checkDependencies = false
     }
     namespace = "com.sduduzog.slimlauncher"
     applicationVariants.all{
