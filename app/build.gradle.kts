@@ -1,10 +1,11 @@
-import com.google.protobuf.gradle.*
+import com.google.protobuf.gradle.id
 
 plugins {
     id("com.android.application")
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
     id("com.google.protobuf")
+    id("org.jlleitschuh.gradle.ktlint")
     kotlin("android")
 }
 
@@ -30,6 +31,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     buildTypes {
         named("release").configure {
@@ -67,16 +69,19 @@ android {
         checkDependencies = false
     }
     namespace = "com.sduduzog.slimlauncher"
-    applicationVariants.all{
+    applicationVariants.all {
         outputs.all {
-            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName = "${applicationId}.apk"
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                "$applicationId.apk"
         }
+        assembleProvider.get().dependsOn.add("ktlintCheck")
     }
 }
 
 dependencies {
     // Kotlin Libraries
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22") // This needs to match ksp and kotlin-gradle-plugin
+    // This needs to match ksp and kotlin-gradle-plugin
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
 
     // Support Libraries
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -95,7 +100,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
-    //3rd party libs
+    // 3rd party libs
     implementation("com.intuit.sdp:sdp-android:1.0.6")
     implementation("com.intuit.ssp:ssp-android:1.0.6")
     implementation("com.google.dagger:hilt-android:2.50")
@@ -115,4 +120,8 @@ protobuf {
             }
         }
     }
+}
+ktlint {
+    android = true
+    ignoreFailures = false
 }

@@ -17,7 +17,9 @@ class CustomizeAppDrawerAppListFragment : BaseFragment() {
     @Inject
     lateinit var unlauncherDataSource: UnlauncherDataSource
 
-    override fun getFragmentView(): ViewGroup = CustomizeAppDrawerAppListFragmentBinding.bind(requireView()).customizeAppDrawerFragment
+    override fun getFragmentView(): ViewGroup = CustomizeAppDrawerAppListFragmentBinding.bind(
+        requireView()
+    ).customizeAppDrawerFragment
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,14 +32,18 @@ class CustomizeAppDrawerAppListFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val unlauncherAppsRepo = unlauncherDataSource.unlauncherAppsRepo
-        val customiseAppDrawerAppListFragment = CustomizeAppDrawerAppListFragmentBinding.bind(requireView())
+        val customiseAppDrawerAppListFragment = CustomizeAppDrawerAppListFragmentBinding.bind(
+            requireView()
+        )
         customiseAppDrawerAppListFragment.customizeAppDrawerFragmentAppList.adapter =
             CustomizeAppDrawerAppsAdapter(viewLifecycleOwner, unlauncherAppsRepo)
         unlauncherAppsRepo.liveData().observe(viewLifecycleOwner) {
             it?.let {
-                customiseAppDrawerAppListFragment.customizeAppDrawerFragmentAppProgressBar.visibility = View.GONE
+                customiseAppDrawerAppListFragment.customizeAppDrawerFragmentAppProgressBar
+                    .visibility = View.GONE
             } ?: run {
-                customiseAppDrawerAppListFragment.customizeAppDrawerFragmentAppProgressBar.visibility = View.VISIBLE
+                customiseAppDrawerAppListFragment.customizeAppDrawerFragmentAppProgressBar
+                    .visibility = View.VISIBLE
             }
         }
         customiseAppDrawerAppListFragment.customizeAppDrawerFragmentBack.setOnClickListener {
