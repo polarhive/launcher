@@ -72,6 +72,7 @@ class CustomizeSearchFieldFragment : BaseFragment() {
     ) {
         options.customizeAppDrawerFragmentSearchFieldPosition.isEnabled = enabled
         options.customizeAppDrawerOpenKeyboardSwitch.isEnabled = enabled
+        options.customizeAppDrawerSearchAllSwitch.isEnabled = enabled
     }
 
     private fun setupSearchBarPositionOption(
