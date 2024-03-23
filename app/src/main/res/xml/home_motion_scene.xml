@@ -147,13 +147,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="0px"
-            android:alpha="0"
+            android:alpha="-1"
             app:visibilityMode="ignore"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintBottom_toTopOf="parent" />
         <Constraint
             android:id="@+id/home_fragment_bin_time"
             android:layout_width="wrap_content"
