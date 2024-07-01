@@ -1,6 +1,0 @@
-Definitions
-We - The dev, contributors and/or the app itself as an entity
-
-Personal information
-
-Unlauncher was made with your privacy in mind, so we do not collect personally identifiable information about you. In other words, we do not collect information such as your name, address, phone number, email address or precise geographic location.
