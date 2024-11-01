@@ -1,4 +1,4 @@
 
 # launcher
 
-<img src="docs/light.jpeg" height="500">
+<img src="docs/dark.jpeg" height="500">
